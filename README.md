@@ -20,3 +20,5 @@ Before we get started, let's briefly discuss the differences between linear regr
 
 <img width="642" alt="Screen Shot 2024-06-25 at 3 11 42 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/95f956ba-fe96-4475-a546-8f09163d187e">
 
+
+
