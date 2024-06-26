@@ -54,4 +54,11 @@ Now that we have the matrix form, we can find the values of the betas by perform
 Note that in linear regression, the equation above provides a closed-form solution as we have a global minimum due to the convex nature of the loss function. For some other types of machine learning models that are non-linear (e.g., neural networks), you may end up having many local minima, as shown in the picture below. This can make the interpretation of the model more complicated. For those types of algorithms, we use an iterative process like gradient descent to find the best spot that is as close to the lowest point as possible, thereby obtaining the optimal beta values. These types of equations do not have a closed-form solution because their loss functions are non-convex and can have multiple local minima.
 
 
+<img width="524" alt="Screen Shot 2024-06-25 at 8 32 39 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/f3e7f8e1-208c-4d99-941f-9e5ff9eaab5d">
+
+In reality, you don't have to calculate the loss function manually, as there are packages for linear regression in Python such as scikit-learn, statsmodels, and numpy if you are a python user or caret if you are an R user.
+
+
+
+
 
