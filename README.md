@@ -25,7 +25,7 @@ The basis of linear regression is the loss function. To understand how linear re
 
 <img width="357" alt="Screen Shot 2024-06-25 at 8 21 59 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/3aeb517a-efab-452b-a340-d6e91bbd8982">
 
-Here SSR represents the sum of squared residuals. If you are still confused about the idea of SSR and loss function, let's start by looking at a typical linear regression model equation below:
+Here SSR represents the sum of squared residuals. X and Y values are the observed data (i.e., the X and Y columns of the data you collected, and {β0,β1} are the unknown parameters. The goal of the loss function, as an optimization process, is to find the set of {β0,β1} that provides the minimum value of this function. If you are still confused about the idea, let's start by looking at a typical linear regression model equation below:
 
 <img width="158" alt="Screen Shot 2024-06-25 at 7 21 36 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/c189b145-1833-4e8c-8fbd-3b2fcf444f8b">
 
