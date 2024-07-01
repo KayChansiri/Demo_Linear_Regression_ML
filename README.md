@@ -347,4 +347,39 @@ The output:
 
 <img width="420" alt="Screen Shot 2024-07-01 at 6 58 48 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/f714d081-c06b-4c84-8984-8847ba1b602a">
 
-As predicted, so many coefficients are put to exactly zero.
+As predicted, so many coefficients are put to exactly zero. The R sqaured also indicate that the model explains only 4% of the target outcome. This addressed that a non-linear algorithm could provide a better fit.
+
+Now let's look at feature importance:
+
+```ruby
+# Feature importance
+
+# Get the coefficients of the model
+coefficients = lasso.coef_
+
+# Create a DataFrame for feature importance
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': coefficients
+}).sort_values(by='Importance', key=abs, ascending=False)
+
+print("Feature Importance:")
+print(feature_importance)
+
+# Plotting the feature importance
+plt.figure(figsize=(10, 6))
+plt.barh(feature_importance['Feature'], feature_importance['Importance'], color='skyblue')
+plt.xlabel('Coefficient Value')
+plt.ylabel('Feature')
+plt.title('Feature Importance')
+plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
+plt.show()
+```
+The output: 
+
+<img width="1053" alt="Screen Shot 2024-07-01 at 7 06 52 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/0f140d08-6a56-4214-a857-a22a76af630c">
+
+The output indicates that being a frequent flyer significantly, weather-related cancellations, association with cargo flights, and  private flights are key features that predict the increase of customer flight frequency. Black customers  also show a higher flight frequency, while multi-racial customers show a lower flight frequency. We also know that customer-initiated cancellations are linked to a decrease in flight frequency. Other features might not be that importan to understand the frequency in flying of target customers. The information we found can help the airline tailor its services and marketing efforts to better meet the needs of its most valuable customers.
+
+### 2. Ridge Regression 
+Now let's look at ridge regression. 
