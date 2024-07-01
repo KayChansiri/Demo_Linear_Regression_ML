@@ -110,3 +110,178 @@ At the beginning, I mentioned standardizing your variables. This is very importa
 Finally, just like other hyperparameters of ML algorithms, you can fine-tune λ. You can use cross-validation to test different values of λ with an increment as small as 0.01 if you have enough computational power and time. Note that ridge regression will shrink coefficients to close to zero but will never be zero.
 
 
+### 2. Lasso Regression
+
+The concept of lasso regression is quite similar to ridge regression. The only difference is that lasso applies a different penalty term to the loss function by extracting the absolute values of each coefficient instead of its raw values. Thus, some variables may have zero regression coefficients after we apply the penalty term. See the equation below:
+
+
+<img width="571" alt="Screen Shot 2024-07-01 at 5 02 49 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/bf378ba3-71c3-42ce-88c1-48b0151942f7">
+
+Now you may have a question about when to use ridge or lasso regression as these two functions work pretty closely. I would suggest that if you don’t want to completely exclude any features from the model (say if you do not have a large number of predictors and all predictors are conceptually meaningful), you may want to use ridge regression. However, if you have a large dataset, for instance, if you work with World Bank data with tens of thousands of predictors, using lasso regression to force certain features to be zero should be fine to ensure the model has generalizability and fewer variance issues.
+
+### 3. Elastic Net
+
+Elastic net simply combines ridge and lasso regression into one by mixing them together with a weighted average (alpha) as you can see in the equation below:
+
+Unlike ridge and lasso regression, we have two parameters to fine-tune in Elastic Net: α and λ. We can consider all possible combinations of these two hyperparameters and try to find the optimal combination using cross-validation techniques.
+
+Elastic net is useful when you want to deal with variance issues by suppressing the coefficients of a certain predictor with large coefficients and still want to perform feature selection if you have a very large dataset with too many predictors by forcing some of them to be zero.
+
+<img width="618" alt="Screen Shot 2024-07-01 at 5 03 53 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/03c64fc5-1087-40d8-ad83-d2860c167ca6">
+
+For the final note before I show you a real-world example, regularization is not a process particular to regression. In some other ML algorithms (e.g., neural networks and support vector machines), we use regularization as well.
+
+## Real-World Example
+
+Now that you understand the basics of linear regression from an ML perspective, let’s take a look at a real-world example.
+
+The dataset I use today consists of features related to airline customers and their flight histories for a specific airline. Let's call that ML Airline!. Each record represents a unique customer, identified by the `customer_id`. The dataset includes demographic information, detailed flight information, previous flight cancellations, and specific reasons for cancellations as you can see below. The outcome variable, `customer_flight_frequency`, measures the frequency of a customer's flights per year, ranging from 0 to 100. Our goal is to indicate factors contributing to customers' flying habits and loyalty to the airline.
+
+```ruby
+data.columns
+```
+
+<img width="641" alt="Screen Shot 2024-07-01 at 5 22 30 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/37bf0053-91a9-4ccd-8a37-4b3d9561eff6">
+
+The first step before we jump right into the ML process is to standardize all continuous features first.
+
+```ruby
+#standardize continuous variables 
+from sklearn.preprocessing import StandardScaler
+
+# Select the columns to standardize
+columns_to_standardize = ['days_since_last_flight', 'customer_age', 'number_of_bookings', 'number_of_flights']
+
+# Initialize the StandardScaler
+scaler = StandardScaler()
+
+# Fit and transform the selected columns
+data[columns_to_standardize] = scaler.fit_transform(data[columns_to_standardize])
+```
+
+Let's check for the VIF:
+
+```ruby
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import statsmodels.api as sm
+
+# Function to calculate VIF
+def calculate_vif(data):
+    vif = pd.DataFrame()
+    vif["Variable"] = data.columns
+    vif["VIF"] = [variance_inflation_factor(data.values, i) for i in range(data.shape[1])]
+    return vif
+
+
+# Remove non-predictor columns
+X = data.drop(columns=['customer_id', 'flight_start_date', 'first_flight_date', 'customer_flight_frequency'])
+
+# Check VIF
+vif = calculate_vif(X)
+print(vif)
+
+# Add a constant to the model (intercept)
+X = sm.add_constant(X)
+
+# Define the target outcome
+y = data['customer_flight_frequency']
+
+```
+
+
+<img width="434" alt="Screen Shot 2024-07-01 at 6 05 14 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/bef5c90b-86fa-47f9-bf19-f348b1b9f44c">
+
+
+According to the VIF output,  flight_type_first_class, number_of_flights, and cancellation_reason_technical have high VIFs, although the values might not be that high if we use a libearl cutoff point (10). The values indicate that the coefficients of those three variables are likely inflated about 10 times compared to if those are not correlated with other predictor in the models. As this is just a demo, I will just leave the features there and do not perform any dimensional reduciton techniques as those could take time to explain and be even another long post that deseves their own airtime!
+
+
+Now the next step is to check the assumptions such as linearity, normality, independence of errors, and heterodasceity. To do that, we have to fit the model first.
+
+```ruby
+# Fit the linear regression model
+model = sm.OLS(y, X)
+result = model.fit()
+
+# Print the summary of the model
+print(result.summary())
+```
+
+
+Then check for linear modeling assumption: 
+
+```ruby
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+import matplotlib.pyplot as plt
+import seaborn as sns
+from statsmodels.graphics.gofplots import qqplot
+from scipy.stats import shapiro, kstest, levene
+
+
+# Assumption Checks
+
+# 1. Linearity
+plt.figure(figsize=(12, 6))
+sns.regplot(x=result.fittedvalues, y=result.resid, lowess=True, line_kws={'color': 'red'})
+plt.xlabel('Fitted values')
+plt.ylabel('Residuals')
+plt.title('Linearity Check: Fitted Values vs Residuals')
+plt.show()
+
+# 2. Independence of errors
+# Durbin-Watson test
+from statsmodels.stats.stattools import durbin_watson
+dw = durbin_watson(result.resid)
+print(f'Durbin-Watson statistic: {dw}')
+
+# 3. Normality of errors
+plt.figure(figsize=(12, 6))
+qqplot(result.resid, line='s')
+plt.title('Normal Q-Q Plot')
+plt.show()
+
+# Shapiro-Wilk test
+shapiro_test = shapiro(result.resid)
+print(f'Shapiro-Wilk test: {shapiro_test}')
+
+# Kolmogorov-Smirnov test
+ks_test = kstest(result.resid, 'norm')
+print(f'Kolmogorov-Smirnov test: {ks_test}')
+
+# 4. Homoscedasticity 
+plt.figure(figsize=(12, 6))
+sns.regplot(x=result.fittedvalues, y=np.sqrt(np.abs(result.resid)), lowess=True, line_kws={'color': 'red'})
+plt.xlabel('Fitted values')
+plt.ylabel('Square root of Abs(Residuals)')
+plt.title('Homoscedasticity Check: Fitted Values vs Sqrt(Abs(Residuals))')
+plt.show()
+
+# Levene's test for homogeneity of variance
+_, pvalue = levene(result.fittedvalues, result.resid)
+print(f'Levene’s test p-value: {pvalue}')
+
+
+```
+
+According to the plot below testing the linearity assumption, the residuals (errors) are not randomly distributed around zero as they should be, indicating that the data is likely non-linear. The Durbin-Watson statistic < 2  alsoindicates positive autocorrelation among residuals, which breaks the assumption of linear modeling that errors should be independent of each other.
+
+
+<img width="1095" alt="Screen Shot 2024-07-01 at 6 30 41 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/10ad91b4-8d11-4de2-b606-6ce0e9f98c60">
+
+
+For normality of errors (not the observed values themselves, as many people tend to misunderstand this point), the deviation of the dots from the line suggests non-normality. The significant Kolmogorov-Smirnov test also suggests non-normality:
+
+
+<img width="1107" alt="Screen Shot 2024-07-01 at 6 31 45 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/84884591-9b79-4694-a972-836a4d867283">
+
+
+For homoscedasticity, the unequal spread of the residuals across all levels of the fitted values and the significant Levene’s test p-value suggest heteroscedasticity or the inconstant variance of errors: 
+
+<img width="1082" alt="Screen Shot 2024-07-01 at 6 32 41 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/86c64f17-f2ed-47d3-b912-96fdf169658d">
+
+
+So many assumption fails indicate that the current dataset is likely not explained by a linear algorithm. However, I will keep going just for the purpose of demonstration.
