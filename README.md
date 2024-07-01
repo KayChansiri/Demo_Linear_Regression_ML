@@ -198,7 +198,7 @@ y = data['customer_flight_frequency']
 According to the VIF output,  flight_type_first_class, number_of_flights, and cancellation_reason_technical have high VIFs, although the values might not be that high if we use a libearl cutoff point (10). The values indicate that the coefficients of those three variables are likely inflated about 10 times compared to if those are not correlated with other predictor in the models. As this is just a demo, I will just leave the features there and do not perform any dimensional reduciton techniques as those could take time to explain and be even another long post that deseves their own airtime!
 
 
-Now the next step is to check the assumptions such as linearity, normality, independence of errors, and heterodasceity. To do that, we have to fit the model first.
+Now the next step is to check the assumptions such as linearity, normality, independence of errors, and heterodasceity. To do that, we have to fit the model first. At this stage, you can just fit a traditional stat model. No need to seperate the data into traning/testing set yet.
 
 ```ruby
 # Fit the linear regression model
@@ -285,3 +285,66 @@ For homoscedasticity, the unequal spread of the residuals across all levels of t
 
 
 So many assumption fails indicate that the current dataset is likely not explained by a linear algorithm. However, I will keep going just for the purpose of demonstration.
+
+Now let's get to the most exciting part, which is to build a model. We will start with a lasso regression first:
+
+### 1. Lasso Regression 
+
+We will start with splitting the data into a traning and testing set and then conduct a cross-validation technique to get the best lamda value. If you are not familiar with the technique, feel free refer back to this post I wrote. 
+
+
+```ruby
+
+from sklearn.linear_model import LassoCV
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a pipeline with standard scaling and LassoCV
+pipeline = make_pipeline(
+    StandardScaler(),
+    LassoCV(cv=5, random_state=42)  # 5-fold cross-validation
+)
+
+# Fit the model
+pipeline.fit(X_train, y_train)
+
+# Get the best lamda value
+lasso = pipeline.named_steps['lassocv']
+print(f"Best lambda value: {lasso.lamda_}")
+
+```
+
+In this code, I did not define the range of lamda that I want too test. The default range of alpha values tested by LassoCV in the code is automatically chosen by the algorithm. The default behavior typically tests a wide range of alpha values on a logarithmic scale. However, you can specify a range of alpha values to be tested by using the code below:
+
+```ruby
+
+pipeline = make_pipeline(
+    StandardScaler(),
+    LassoCV(alphas=np.logspace(-6, 6, 100), cv=5, random_state=42)  # 5-fold cross-validation
+)
+
+```
+
+In the code above, np.logspace(-6, 6, 100) creates 100 alpha values ranging from 10−610−6 to 106106 on a logarithmic scale. You can adjust the range and the number of lamda values according to your objective and computational power that you have. Using the default behavior, the best lambda value us 11.28471657029729. Notice that  the suggested lamnda is quite big, indicating a strong regularization. I am not surprised is this data is non-linear according to the assumption tests. Trying to fit the linear model to non-linear data would result in a high variance model. Thus, the model chooses a large lambda value to suppress coefficients, which in turn reduce variance. Using this big lamdda, most coefficients are pushed to exactlty zero.
+
+Let's test the model on the testing set:
+
+```ruby
+y_pred = pipeline.predict(X_test)
+r2_score = pipeline.score(X_test, y_test)
+print(f"R^2 score on the test set: {r2_score}")
+
+# Optional: Print out the feature names with their corresponding coefficients
+feature_names = X.columns
+coef_df = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+print(coef_df.sort_values(by='Coefficient', ascending=False))
+```
+The output: 
+
+<img width="420" alt="Screen Shot 2024-07-01 at 6 58 48 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/f714d081-c06b-4c84-8984-8847ba1b602a">
+
+As predicted, so many coefficients are put to exactly zero.
