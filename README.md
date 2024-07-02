@@ -10,14 +10,14 @@ Before we get started, let's briefly discuss the differences between linear regr
 * **Dataset Usage**: Traditional statistics uses only one dataset without dividing it into testing, training, and validation sets for modeling.
 * **Data Preparation**: Involves standard data preparation processes, such as encoding variables, checking for and imputing missing data, and testing linear assumptions (e.g., linearity, normality, independence of errors, heteroscedasticity). Linear regression from a traditional statistics perspective also involves checking for multicollinearity using methods such as VIF (Variance Inflation Factor) or correlation tests. For VIF, if the value of a specific variable is more, the variable is likely to be highly correlated with other variables in the dataset. You may found that some sources use VIF more than 10 as the cutoff point if they want to be a bit moe liberal. Regarding pearson correlations, if any pairs of variables are correlated more than 0.9, the varibales are highly correlated. If multicollinearity issues exist, feature selection processes, such as dimensionality reduction (e.g., exploratory factor analysis, confirmatory factor analysis), centering (especially when interaction terms are included in the model), or excluding predictors with conceptually less importance may be performed.
 
-As linear regression relies on the ordinary least squares approach and gradient descent methods to identify the best regression coefficients  that reduce error variances of the model, standardizing predictors to the same scale is also vital to ensure the optimal solution. If your features are on different scales, interpreting the model fit and its predictability would be challenging. For example, imagine you are predicting customer satisfaction towards an airline service on a scale of 1 to 5 (this is your y or target outcome) by customer age (rangesfrom 5 to 100) (X1) and customers’ frequency in flying per week (ranges from 0 to 7) (X2). An increase in one unit of the coefficient of your X1 would be different from an increase in one unit of the coefficient of your X2, and X1 can increase up to 100, whereas X2 can increase up to  7. To know which feature yields more impact on the outcome, you have to standardize them to be on the same scale. While standardization is  important for linear regression, keep in mind that it might not be as crucial for some other ML algorithms, such as random forests or decision   trees. For those algorithms, different scales of features do not matter as much since the algorithm relies on decision boundaries in fitting the model.
+As linear regression relies on the ordinary least squares approach (for a small dataset) or gradient descent methods (for a large dataset) to identify the best regression coefficients  that reduce error variances of the model, standardizing predictors to the same scale is also vital to ensure the optimal solution. If your features are on different scales, interpreting the model fit and its predictability would be challenging. For example, imagine you are predicting customer satisfaction towards an airline service on a scale of 1 to 5 (this is your y or target outcome) by customer age (rangesfrom 5 to 100) (X1) and customers’ frequency in flying per week (ranges from 0 to 7) (X2). An increase in one unit of the coefficient of your X1 would be different from an increase in one unit of the coefficient of your X2, and X1 can increase up to 100, whereas X2 can increase up to  7. To know which feature yields more impact on the outcome, you have to standardize them to be on the same scale. While standardization is  important for linear regression, keep in mind that it might not be as crucial for some other ML algorithms, such as random forests or decision   trees. For those algorithms, different scales of features do not matter as much since the algorithm relies on decision boundaries in fitting the model.
 
 * **Model Emphasis**: Linear regression from a traditional approch emphasizes inference and determining if a model explains past data well, rather than predicting future data.
   
 ### Machine Learning
 * **Dataset Usage**: Unlike traidtional statistics, linear regression from an ML perspective performs data separation into testing, training, and validation sets to ensure the model works well with unseen data. For projects with less computational power or budget, separating the data into testing and training sets without a validation set may be sufficient.
 * **Data Preparation**: Similar to linear regression from a traditional standpoint, the ML approach should ensure that linear assumptions are met, missing data are imputed or excluded, all continious variables are standardized, and no multicollinearity issues exist. Taking an additional step from traditional statistical approach, linear regression from an ML perspective uses regularization techniques (e.g., ridge, lasso, elastic net) and fine-tunes hyperparameters (e.g., lambda and alpha) to deal with multicollinearity or variance issues from meaningless variables. The process also involves K-fold cross-validation to adjust the model's hyperparametersd during the traning process before model testing deployment. You will understand these concepts better later in the post.
-* **Model Emphasis**: Unlike traditional statistics that focus on explaining existing data, ML focuses on building robust models that can generalize well to new data.
+* **Model Emphasis**: Unlike traditional statistics that focus on explaining existing data, ML focuses on building robust models that can generalize well to new data. 
 
 <img width="642" alt="Screen Shot 2024-06-25 at 3 11 42 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/95f956ba-fe96-4475-a546-8f09163d187e">
 
@@ -102,7 +102,6 @@ However, the goal of machine learning is to produce a model that can best predic
 
 Now apply the cup metaphor to the beta plot previously. if we penalize β<sub>1</sub> by multiplying a λ term to the coefficient, the shape of your dataset in a 3D dimensional space would look more general and less specific to your current data only. It would look something more the plot below on the right. Notice that the scale of β<sub>1</sub> is smaller after being penalized, ranging from , compared to before being penalized, of which the coefficients range from . This is because the original coefficient of β<sub>1</sub> was quite large, contributing to a more significant decrease in its scale during the adjustment process of the loss function to minimize loss. 
 
-
 Keep in mind that in reality, your dataset will have more than the intercept and one predictor. Thus, the 3D visual I inserted above is for simplicity in demonstration. In the real world, your data could have hundreds of dimensions that would be too challenging for human eyes to comprehend!
 
 At the beginning, I mentioned standardizing your variables. This is very important for ridge regression. If you don't standardize, ridge regression's penalty will be amplified for the coefficients of those variables with a larger range of values (e.g., age will be penalized more than the number of flights per week). This could result in inaccurate model fitting as age gets penalized not because it causes variance but because it is naturally on a larger scale before standardization.
@@ -112,22 +111,22 @@ Finally, just like other hyperparameters of ML algorithms, you can fine-tune λ.
 
 ### 2. Lasso Regression
 
-The concept of lasso regression is quite similar to ridge regression. The only difference is that lasso applies a different penalty term to the loss function by extracting the absolute values of each coefficient instead of its raw values. Thus, some variables may have zero regression coefficients after we apply the penalty term. See the equation below:
+The concept of Lasso regression is quite similar to Ridge regression. The only difference is that Lasso applies a different penalty term to the loss function by using the absolute values of each coefficient instead of their squared values. Thus, some variables may have zero regression coefficients after the penalty term is applied. Lasso helps with feature selection because it can force some coefficients to zero, indicating which features are meaningful in the dataset. See the equation below:
 
 
 <img width="571" alt="Screen Shot 2024-07-01 at 5 02 49 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/bf378ba3-71c3-42ce-88c1-48b0151942f7">
 
-Now you may have a question about when to use ridge or lasso regression as these two functions work pretty closely. I would suggest that if you don’t want to completely exclude any features from the model (say if you do not have a large number of predictors and all predictors are conceptually meaningful), you may want to use ridge regression. However, if you have a large dataset, for instance, if you work with World Bank data with tens of thousands of predictors, using lasso regression to force certain features to be zero should be fine to ensure the model has generalizability and fewer variance issues.
+Now, you may wonder when to use Ridge or Lasso regression, as these two functions work quite similarly. I would suggest using Ridge regression if you don’t want to completely exclude any features from the model (for example, if you do not have a large number of predictors and all predictors are conceptually meaningful). However, if you have a large dataset, such as World Bank data with tens of thousands of predictors, using Lasso regression to force certain features to zero can be beneficial to ensure the model has generalizability and fewer variance issues.
 
 ### 3. Elastic Net
 
-Elastic net simply combines ridge and lasso regression into one by mixing them together with a weighted average (alpha) as you can see in the equation below:
+Elastic Net simply combines Ridge and Lasso regression into one by mixing them together, as you can see in the equation below:
 
-Unlike ridge and lasso regression, we have two parameters to fine-tune in Elastic Net: α and λ. We can consider all possible combinations of these two hyperparameters and try to find the optimal combination using cross-validation techniques.
+<img width="469" alt="Screen Shot 2024-07-02 at 11 56 37 AM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/0a4f6dcd-9251-425c-b97b-3f4b4583d5c7">
+
+Unlike ridge and lasso regression, we have two parameters to fine-tune in Elastic Net: λ1 (lasso) and λ2 (ridge). Note tat if you set λ1 = 1, you would get a Lasso model, whereas if you set the parameter = 0, you would get a ridge model. Setting the value to be between 0 and 1 balance the contributions of λ1 and λ2 penalties. We can consider all possible combinations of these two hyperparameters and try to find the optimal combination using cross-validation techniques.
 
 Elastic net is useful when you want to deal with variance issues by suppressing the coefficients of a certain predictor with large coefficients and still want to perform feature selection if you have a very large dataset with too many predictors by forcing some of them to be zero.
-
-<img width="618" alt="Screen Shot 2024-07-01 at 5 03 53 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/03c64fc5-1087-40d8-ad83-d2860c167ca6">
 
 For the final note before I show you a real-world example, regularization is not a process particular to regression. In some other ML algorithms (e.g., neural networks and support vector machines), we use regularization as well.
 
@@ -135,7 +134,7 @@ For the final note before I show you a real-world example, regularization is not
 
 Now that you understand the basics of linear regression from an ML perspective, let’s take a look at a real-world example.
 
-The dataset I use today is a similuated data consisting of features related to airline customers and their flight histories for a specific airline. Let's call that ML Airline!. Each record represents a unique customer, identified by the `customer_id`. The dataset includes demographic information, detailed flight information, previous flight cancellations, and specific reasons for cancellations as you can see below. The outcome variable, `customer_flight_frequency`, measures the frequency of a customer's flights per year, ranging from 0 to 100. Our goal is to indicate factors contributing to customers' flying habits and loyalty to the airline.
+The dataset I use today is simulated data consisting of features related to airline customers and their flight histories for a specific airline. Let's call it ML Airline! Each record represents a unique customer, identified by the `customer_id`. The dataset includes demographic information, detailed flight information, previous flight cancellations, and specific reasons for cancellations, as you can see below. The outcome variable, `customer_flight_frequency`, measures the frequency of a customer's flights per year, ranging from 0 to 100. Our goal is to identify factors contributing to customers' flying habits and loyalty to the airline.
 
 ```ruby
 data.columns
@@ -143,7 +142,7 @@ data.columns
 
 <img width="641" alt="Screen Shot 2024-07-01 at 5 22 30 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/37bf0053-91a9-4ccd-8a37-4b3d9561eff6">
 
-The first step before we jump right into the ML process is to standardize all continuous features first.
+The first step, before we jump right into the ML process, is to standardize all continuous features.
 
 ```ruby
 #standardize continuous variables 
@@ -159,7 +158,7 @@ scaler = StandardScaler()
 data[columns_to_standardize] = scaler.fit_transform(data[columns_to_standardize])
 ```
 
-Let's check for the VIF:
+Let's check the VIF:
 
 ```ruby
 import pandas as pd
@@ -195,10 +194,9 @@ y = data['customer_flight_frequency']
 <img width="434" alt="Screen Shot 2024-07-01 at 6 05 14 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/bef5c90b-86fa-47f9-bf19-f348b1b9f44c">
 
 
-According to the VIF output,  flight_type_first_class, number_of_flights, and cancellation_reason_technical have high VIFs, although the values might not be that high if we use a libearl cutoff point (10). The values indicate that the coefficients of those three variables are likely inflated about 10 times compared to if those are not correlated with other predictor in the models. As this is just a demo, I will just leave the features there and do not perform any dimensional reduciton techniques as those could take time to explain and be even another long post that deseves their own airtime!
+According to the VIF output, `flight_type_first_class`, `number_of_flights`, and `cancellation_reason_technical` have high VIFs, although the values might not be considered too high if we use a liberal cutoff point of 10. These values indicate that the coefficients of those three variables are likely inflated about 10 times compared to if they were not correlated with other predictors in the model. As this is just a demo, I will leave the features as they are and not perform any dimensional reduction techniques, as those could take time to explain and could be another long post that deserves its own airtime!
 
-
-Now the next step is to check the assumptions such as linearity, normality, independence of errors, and heterodasceity. To do that, we have to fit the model first. At this stage, you can just fit a traditional stat model. No need to seperate the data into traning/testing set yet.
+Now, the next step is to check the assumptions such as linearity, normality, independence of errors, and heteroscedasticity. To do that, we have to fit the model first. At this stage, you can just fit a traditional statistical model. There is no need to separate the data into training and testing sets yet.
 
 ```ruby
 # Fit the linear regression model
@@ -210,7 +208,7 @@ print(result.summary())
 ```
 
 
-Then check for linear modeling assumption: 
+Then check for the linear modeling assumptions: 
 
 ```ruby
 import pandas as pd
@@ -267,31 +265,30 @@ print(f'Levene’s test p-value: {pvalue}')
 
 ```
 
-According to the plot below testing the linearity assumption, the residuals (errors) are not randomly distributed around zero as they should be, indicating that the data is likely non-linear. The Durbin-Watson statistic < 2  alsoindicates positive autocorrelation among residuals, which breaks the assumption of linear modeling that errors should be independent of each other.
+According to the plot below testing the linearity assumption, the residuals (errors) are not randomly distributed around zero as they should be, indicating that the data is likely non-linear. The Durbin-Watson statistic < 2 also indicates positive autocorrelation among residuals, which breaks the assumption of linear modeling that errors should be independent of each other.
 
 
 <img width="1095" alt="Screen Shot 2024-07-01 at 6 30 41 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/10ad91b4-8d11-4de2-b606-6ce0e9f98c60">
 
 
-For normality of errors (not the observed values themselves, as many people tend to misunderstand this point), the deviation of the dots from the line suggests non-normality. The significant Kolmogorov-Smirnov test also suggests non-normality:
+For the normality of errors (not the observed values themselves, as many people tend to misunderstand this point), the deviation of the dots from the line suggests non-normality. The significant Kolmogorov-Smirnov test also suggests non-normality:
 
 
 <img width="1107" alt="Screen Shot 2024-07-01 at 6 31 45 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/84884591-9b79-4694-a972-836a4d867283">
 
 
-For homoscedasticity, the unequal spread of the residuals across all levels of the fitted values and the significant Levene’s test p-value suggest heteroscedasticity or the inconstant variance of errors: 
+For homoscedasticity, the unequal spread of the residuals across all levels of the fitted values and the significant Levene’s test p-value suggest heteroscedasticity, or the inconsistent variance of errors:
 
 <img width="1082" alt="Screen Shot 2024-07-01 at 6 32 41 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/86c64f17-f2ed-47d3-b912-96fdf169658d">
 
 
-So many assumption fails indicate that the current dataset is likely not explained by a linear algorithm. However, I will keep going just for the purpose of demonstration.
+So many assumption failures indicate that the current dataset is likely not explained well by a linear algorithm. However, I will keep going just for the purpose of demonstration.
 
-Now let's get to the most exciting part, which is to build a model. We will start with a lasso regression first:
+Now let's get to the most exciting part, which is building a model. We will start with Lasso regression first:
 
 ### 1. Lasso Regression 
 
-We will start with splitting the data into a traning and testing set and then conduct a cross-validation technique to get the best lamda value. If you are not familiar with the technique, feel free refer back to this post I wrote. 
-
+We will start by splitting the data into a training and testing set and then conduct a cross-validation technique to get the best lambda value. If you are not familiar with the technique, feel free to refer back to this post I wrote.
 
 ```ruby
 
@@ -329,7 +326,7 @@ pipeline = make_pipeline(
 
 ```
 
-In the code above, np.logspace(-6, 6, 100) creates 100 alpha values ranging from 10−610−6 to 106106 on a logarithmic scale. You can adjust the range and the number of lamda values according to your objective and computational power that you have. Using the default behavior, the best lambda value us 11.28471657029729. Notice that  the suggested lamnda is quite big, indicating a strong regularization. I am not surprised is this data is non-linear according to the assumption tests. Trying to fit the linear model to non-linear data would result in a high variance model. Thus, the model chooses a large lambda value to suppress coefficients, which in turn reduce variance. Using this big lamdda, most coefficients are pushed to exactlty zero. Note that I set CV = 5 just to speed up the computational time. In the reality, you can use set your CV to be more than five to ensure you get the best estimates of hyperparameters. Besides, scikit-learn  refers to lamda,which is often used in theoretical contexts, "alpha" here.
+In this code, I did not define the range of lambda values to test. The default range of alpha values tested by LassoCV in the code is automatically chosen by the algorithm. The default behavior typically tests a wide range of alpha values on a logarithmic scale. However, you can specify a range of alpha values to be tested by using the code below:
 
 Let's test the model on the testing set:
 
@@ -347,9 +344,9 @@ The output:
 
 <img width="420" alt="Screen Shot 2024-07-01 at 6 58 48 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/f714d081-c06b-4c84-8984-8847ba1b602a">
 
-As predicted, so many coefficients are put to exactly zero. The R sqaured also indicate that the model explains only 4% of the target outcome. This addressed that a non-linear algorithm could provide a better fit.
+As predicted, many coefficients are set to exactly zero. The R-squared value also indicates that the model explains only 4% of the target outcome. This suggests that a non-linear algorithm could provide a better fit.
 
-Now let's look at feature importance:
+Now, let's look at feature importance:
 
 ```ruby
 # Feature importance
@@ -379,7 +376,7 @@ The output:
 
 <img width="1053" alt="Screen Shot 2024-07-01 at 7 06 52 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/0f140d08-6a56-4214-a857-a22a76af630c">
 
-The output indicates that being a frequent flyer significantly, weather-related cancellations, association with cargo flights, and  private flights are key features that predict the increase of customer flight frequency. Black customers  also show a higher flight frequency, while multi-racial customers show a lower flight frequency. We also know that customer-initiated cancellations are linked to a decrease in flight frequency. Other features might not be that importan to understand the frequency in flying of target customers. The information we found can help the airline tailor its services and marketing efforts to better meet the needs of its most valuable customers.
+The output indicates that being a frequent flyer, weather-related cancellations, association with cargo flights, and private flights are key features that predict an increase in customer flight frequency. Black customers also show a higher flight frequency, while multi-racial customers show a lower flight frequency. Additionally, customer-initiated cancellations are linked to a decrease in flight frequency. Other features might not be as important in understanding the frequency of flying among target customers. This information can help the airline tailor its services and marketing efforts to better meet the needs of its most valuable customers.
 
 ### 2. Ridge Regression 
 Now let's look at ridge regression. 
@@ -419,7 +416,7 @@ coef_df = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
 print(coef_df.sort_values(by='Coefficient', ascending=False))
 ```
 
-Different from lasso, this time, I asked the model to test alpha (AKA lambda) values ranging from 10<sup>-6</sup> to 10<sup>6</sup> . The output suggests that the best lambda here is 174.7528400007683, and the R squared score on the test set is only 0.017676993512320327, indicating that onlt about 1.7% of the outcome is explained by our model. The model is, again, quite bad in fitting this data. Let's take a look at the feature importance:
+Different from Lasso, this time I asked the model to test alpha (AKA lambda) values ranging from 10<sup>-6</sup> to 10<sup>6</sup>. The output suggests that the best lambda here is 174.7528400007683, and the R-squared score on the test set is only 0.017676993512320327, indicating that only about 1.7% of the outcome is explained by our model. The model is, again, quite poor in fitting this data. Let's take a look at the feature importance:
 
 ```ruby
 
@@ -451,9 +448,77 @@ Here is the output:
 
 <img width="1086" alt="Screen Shot 2024-07-02 at 11 15 35 AM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/17b2090b-dc15-459c-8124-fe66e01ae039">
 
+The findings indicate that being a frequent flyer is the most significant predictor of customer flight frequency, with a strong positive coefficient. Weather-related cancellations and cargo flights also positively influence flight frequency. Conversely, customer-initiated cancellations, technical cancellations, and other unspecified cancellation reasons negatively impact flight frequency, suggesting that these factors lead to reduced flying. Notably, the number of flights and ethnicity (specifically being Black) are positively associated with flight frequency, while previous cancellations, economy class flights, and multi-racial ethnicity show negative associations.
 
-The finidings indicatethat being a frequent flyer is the most significant predictor of customer flight frequency, with a strong positive coefficient. Weather-related cancellations and cargo flights also positively influence flight frequency. Conversely, customer-initiated cancellations, technical cancellations, and other unspecified cancellation reasons negatively impact flight frequency, suggesting that these factors lead to reduced flying. Notably, the number of flights and ethnicity (specifically being Black) are positively associated with flight frequency, while previous cancellations, economy class flights, and multi-racial ethnicity show negative associations. 
+### 3. Elastic Net 
 
+Let's take a look at the final method for today's post: elastic net 
 
+```ruby
 
+from sklearn.linear_model import ElasticNetCV
 
+# Create a pipeline with standard scaling and ElasticNetCV
+pipeline = make_pipeline(
+    StandardScaler(),
+    ElasticNetCV(cv=5, random_state=42)  
+)
+
+# Fit the model
+pipeline.fit(X_train, y_train)
+
+# Get the best alpha and l1_ratio values
+elastic_net = pipeline.named_steps['elasticnetcv']
+print(f"Best alpha value: {elastic_net.alpha_}")
+print(f"Best l1_ratio value: {elastic_net.l1_ratio_}")
+
+# Print the coefficients
+coefficients = elastic_net.coef_
+print("Coefficients of the Elastic Net model:")
+print(coefficients)
+
+# Evaluate the model on the test set
+y_pred = pipeline.predict(X_test)
+r2_score = pipeline.score(X_test, y_test)
+print(f"R^2 score on the test set: {r2_score}")
+
+#Print out the feature names with their corresponding coefficients
+feature_names = X.columns
+coef_df = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+print(coef_df.sort_values(by='Coefficient', ascending=False))
+
+```
+
+Note that according to the code, the best alpha value indicates the overall strength of the regularization. The l1_ratio controls the mix between L1 and L2 regularization. An l1_ratio of 1 means pure Lasso, 0 means pure Ridge, and values in between represent a mix of both. The output suggests that the best alpha value is 0.5213831781212868, and the best l1_ratio value is 0.5. The R-squared score on the test set is 0.019616740755564188, indicating that about 1.9% of the target outcome variance is explained by the model. Let's look at the feature importance.
+
+```ruby
+# Feature importance
+
+# Create a DataFrame for feature importance
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': coefficients
+}).sort_values(by='Importance', key=abs, ascending=False)
+
+print("Feature Importance:")
+print(feature_importance)
+
+# Plotting the feature importance
+plt.figure(figsize=(10, 6))
+plt.barh(feature_importance['Feature'], feature_importance['Importance'], color='skyblue')
+plt.xlabel('Coefficient Value')
+plt.ylabel('Feature')
+plt.title('Feature Importance')
+plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
+plt.show()
+```
+
+Here is the output: 
+
+<img width="1096" alt="Screen Shot 2024-07-02 at 12 14 43 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/50218c62-ea1e-4549-805a-e80b48062543">
+
+The feature importance analysis indicates that being a frequent flyer is the most significant predictor of customer flight frequency. Weather-related cancellations, the number of flights, being Black, and cargo flights are positively associated with higher flight frequency. Conversely, customer-initiated cancellations, other unspecified cancellations, and technical cancellations negatively impact flight frequency. Previous cancellations, economy class flights, and being multi-racial also show negative associations. Notice that certain features, such as being Asian, are forced to zero, indicating less influence of this specific feature on customer flight frequency.
+
+According to the R-squared scores across the three methods, Lasso is the best model, followed by Elastic Net and Ridge. However, overall model performance is poor on the current dataset, indicating that alternative non-linear algorithms should be utilized to fit the dataset better.
+
+I hope that this article provides you with a useful understanding of the differences between traditional statistics and ML approaches in linear regression, the importance of standardizing features, handling multicollinearity, validating assumptions to ensure a robust model, and the three regularization techniques (i.e., Lasso, Ridge, and Elastic Net).
