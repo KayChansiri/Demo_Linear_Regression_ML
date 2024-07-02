@@ -104,7 +104,13 @@ However, the goal of machine learning is to produce a model that can best predic
 
 
 
-Now apply the cup metaphor to the beta plot previously. if we penalize β<sub>1</sub> by multiplying a λ term to the coefficient, the shape of your dataset in a 3D dimensional space would look more general and less specific to your current data only. It would look something more the plot below on the right. Notice that the scale of β<sub>1</sub> is smaller after being penalized, ranging from , compared to before being penalized, of which the coefficients range from . This is because the original coefficient of β<sub>1</sub> was quite large, contributing to a more significant decrease in its scale during the adjustment process of the loss function to minimize loss. 
+Now apply the cup metaphor to the beta plot previously. if we penalize β<sub>1</sub> by multiplying a λ term to the coefficient, the shape of your dataset in a 3D dimensional space would look more general and less specific to your current data only. It would look something more the plot below on the right.
+
+<img width="552" alt="Screen Shot 2024-07-01 at 3 07 47 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/79ee0d22-23e5-4739-95ba-4472820c4139">
+
+
+
+Notice that the scale of β<sub>1</sub> is smaller after being penalized, ranging from -3 to 3, compared to before being penalized, of which the coefficients range from -10 to 10. This is because the original coefficient of β<sub>1</sub> was quite large, contributing to a more significant decrease in its scale during the adjustment process of the loss function to minimize loss. 
 
 Keep in mind that in reality, your dataset will have more than the intercept and one predictor. Thus, the 3D visual I inserted above is for simplicity in demonstration. In the real world, your data could have hundreds of dimensions that would be too challenging for human eyes to comprehend!
 
