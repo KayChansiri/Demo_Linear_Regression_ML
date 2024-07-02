@@ -94,11 +94,15 @@ Technically, λ can take any positive value between 0 and ∞. If we set λ = 0,
 
 If you still don't quite understand how adding penalty terms alters the shape of your data and regression solution, imagine trying to fit a model to your dataset where the best β<sub>1</sub> that could reduce SSE is quite large. The shape of the data might look like the plot below. 
 
--- plot -- 
+<img width="274" alt="Screen Shot 2024-07-01 at 3 08 06 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/cf91c662-fcc2-42d5-acad-1e4f021f658b">
+
 
 However, the goal of machine learning is to produce a model that can best predict future datasets. Simply put, we want a model whose shape is generalizable. Imagine you have to explain to a minor ethnicity islander who has never experienced the outside world what a cup is. You would want to show them picture A below, not picture B, as picture A is more like a cup according to a global standard.
 
---Insert pictures of a normal-looking cup and a weird cup.
+
+<img width="302" alt="Screen Shot 2024-07-02 at 7 49 13 PM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/2a4bbc53-b36a-4a73-9865-72d4bce96691">
+
+
 
 Now apply the cup metaphor to the beta plot previously. if we penalize β<sub>1</sub> by multiplying a λ term to the coefficient, the shape of your dataset in a 3D dimensional space would look more general and less specific to your current data only. It would look something more the plot below on the right. Notice that the scale of β<sub>1</sub> is smaller after being penalized, ranging from , compared to before being penalized, of which the coefficients range from . This is because the original coefficient of β<sub>1</sub> was quite large, contributing to a more significant decrease in its scale during the adjustment process of the loss function to minimize loss. 
 
