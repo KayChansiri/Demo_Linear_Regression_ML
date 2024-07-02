@@ -135,7 +135,7 @@ For the final note before I show you a real-world example, regularization is not
 
 Now that you understand the basics of linear regression from an ML perspective, let’s take a look at a real-world example.
 
-The dataset I use today consists of features related to airline customers and their flight histories for a specific airline. Let's call that ML Airline!. Each record represents a unique customer, identified by the `customer_id`. The dataset includes demographic information, detailed flight information, previous flight cancellations, and specific reasons for cancellations as you can see below. The outcome variable, `customer_flight_frequency`, measures the frequency of a customer's flights per year, ranging from 0 to 100. Our goal is to indicate factors contributing to customers' flying habits and loyalty to the airline.
+The dataset I use today is a similuated data consisting of features related to airline customers and their flight histories for a specific airline. Let's call that ML Airline!. Each record represents a unique customer, identified by the `customer_id`. The dataset includes demographic information, detailed flight information, previous flight cancellations, and specific reasons for cancellations as you can see below. The outcome variable, `customer_flight_frequency`, measures the frequency of a customer's flights per year, ranging from 0 to 100. Our goal is to indicate factors contributing to customers' flying habits and loyalty to the airline.
 
 ```ruby
 data.columns
@@ -329,7 +329,7 @@ pipeline = make_pipeline(
 
 ```
 
-In the code above, np.logspace(-6, 6, 100) creates 100 alpha values ranging from 10−610−6 to 106106 on a logarithmic scale. You can adjust the range and the number of lamda values according to your objective and computational power that you have. Using the default behavior, the best lambda value us 11.28471657029729. Notice that  the suggested lamnda is quite big, indicating a strong regularization. I am not surprised is this data is non-linear according to the assumption tests. Trying to fit the linear model to non-linear data would result in a high variance model. Thus, the model chooses a large lambda value to suppress coefficients, which in turn reduce variance. Using this big lamdda, most coefficients are pushed to exactlty zero.
+In the code above, np.logspace(-6, 6, 100) creates 100 alpha values ranging from 10−610−6 to 106106 on a logarithmic scale. You can adjust the range and the number of lamda values according to your objective and computational power that you have. Using the default behavior, the best lambda value us 11.28471657029729. Notice that  the suggested lamnda is quite big, indicating a strong regularization. I am not surprised is this data is non-linear according to the assumption tests. Trying to fit the linear model to non-linear data would result in a high variance model. Thus, the model chooses a large lambda value to suppress coefficients, which in turn reduce variance. Using this big lamdda, most coefficients are pushed to exactlty zero. Note that I set CV = 5 just to speed up the computational time. In the reality, you can use set your CV to be more than five to ensure you get the best estimates of hyperparameters. Besides, scikit-learn  refers to lamda,which is often used in theoretical contexts, "alpha" here.
 
 Let's test the model on the testing set:
 
@@ -383,3 +383,77 @@ The output indicates that being a frequent flyer significantly, weather-related 
 
 ### 2. Ridge Regression 
 Now let's look at ridge regression. 
+
+```ruby
+#Ridge 
+
+from sklearn.linear_model import RidgeCV
+
+
+# Create a pipeline with standard scaling and RidgeCV
+pipeline = make_pipeline(
+    StandardScaler(),
+    RidgeCV(alphas=np.logspace(-6, 6, 100), cv=5) 
+)
+
+# Fit the model
+pipeline.fit(X_train, y_train)
+
+# Get the best lambda value
+ridge = pipeline.named_steps['ridgecv']
+print(f"Best lambda value: {ridge.alpha_}")
+
+# Print the coefficients
+coefficients = ridge.coef_
+print("Coefficients of the Ridge model:")
+print(coefficients)
+
+# Evaluate the model on the test set
+y_pred = pipeline.predict(X_test)
+r2_score = pipeline.score(X_test, y_test)
+print(f"R^2 score on the test set: {r2_score}")
+
+# Optional: Print out the feature names with their corresponding coefficients
+feature_names = X.columns
+coef_df = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+print(coef_df.sort_values(by='Coefficient', ascending=False))
+```
+
+Different from lasso, this time, I asked the model to test alpha (AKA lambda) values ranging from 10<sup>-6</sup> to 10<sup>6</sup> . The output suggests that the best lambda here is 174.7528400007683, and the R squared score on the test set is only 0.017676993512320327, indicating that onlt about 1.7% of the outcome is explained by our model. The model is, again, quite bad in fitting this data. Let's take a look at the feature importance:
+
+```ruby
+
+# Feature importance
+
+# Get the coefficients of the model
+coefficients = ridge.coef_
+
+# Create a DataFrame for feature importance
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': coefficients
+}).sort_values(by='Importance', key=abs, ascending=False)
+
+print("Feature Importance:")
+print(feature_importance)
+
+# Plotting the feature importance
+plt.figure(figsize=(10, 6))
+plt.barh(feature_importance['Feature'], feature_importance['Importance'], color='skyblue')
+plt.xlabel('Coefficient Value')
+plt.ylabel('Feature')
+plt.title('Feature Importance')
+plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
+plt.show()
+```
+
+Here is the output: 
+
+<img width="1086" alt="Screen Shot 2024-07-02 at 11 15 35 AM" src="https://github.com/KayChansiri/LinearRegressionML/assets/157029107/17b2090b-dc15-459c-8124-fe66e01ae039">
+
+
+The finidings indicatethat being a frequent flyer is the most significant predictor of customer flight frequency, with a strong positive coefficient. Weather-related cancellations and cargo flights also positively influence flight frequency. Conversely, customer-initiated cancellations, technical cancellations, and other unspecified cancellation reasons negatively impact flight frequency, suggesting that these factors lead to reduced flying. Notably, the number of flights and ethnicity (specifically being Black) are positively associated with flight frequency, while previous cancellations, economy class flights, and multi-racial ethnicity show negative associations. 
+
+
+
+
