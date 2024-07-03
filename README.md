@@ -533,4 +533,5 @@ According to the R-squared scores across the three methods, Lasso is the best mo
 
 I hope that this article provides you with a useful understanding of the differences between traditional statistics and ML approaches in linear regression, the importance of standardizing features, handling multicollinearity, validating assumptions to ensure a robust model, and the three regularization techniques (i.e., Lasso, Ridge, and Elastic Net).
 
-See the LinkedIn_Demo_Linear_Regression.ipynb for the full code.
+See here [for the full code](https://github.com/KayChansiri/LinearRegressionML/blob/main/LinkedIn_Demo_Linear_Regression.ipynb).
+
