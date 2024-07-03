@@ -532,3 +532,5 @@ The feature importance analysis indicates that being a frequent flyer is the mos
 According to the R-squared scores across the three methods, Lasso is the best model, followed by Elastic Net and Ridge. However, overall model performance is poor on the current dataset, indicating that alternative non-linear algorithms should be utilized to fit the dataset better.
 
 I hope that this article provides you with a useful understanding of the differences between traditional statistics and ML approaches in linear regression, the importance of standardizing features, handling multicollinearity, validating assumptions to ensure a robust model, and the three regularization techniques (i.e., Lasso, Ridge, and Elastic Net).
+
+See the LinkedIn_Demo_Linear_Regression.ipynb for the full code.
