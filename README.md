@@ -4,7 +4,7 @@ Let's talk about one of the simplest machine learning (ML) algorithms today: reg
 
 ## Differences Between Traditional Statistics and Machine Learning
 
-Before we get started, let's briefly discuss the differences between linear regression from a traditional statistics standpoint versus a machine learning standpoint.
+Before we get started, let's briefly discuss the differences between linear regression from a traditional statistics standpoint versus a machine learning standpoint. 
 
 ### Traditional Statistics
 * **Dataset Usage**: Traditional statistics uses only one dataset without dividing it into testing, training, and validation sets for modeling.
